@@ -66,3 +66,31 @@ The first live backfill attempt marked 11 jobs `failed` because the batch respon
 - Video timestamps are model-reported and were validated only against probed duration; they have not been manually checked against the authored clip frame by frame.
 - Caption quality was validated for grounding (exact excerpts) but not manually reviewed for semantic accuracy.
 - The free-tier daily request limit is small and model-specific; the queue limits must stay configurable and conservative.
+
+## Live Ask and Telegram acceptance (2026-11-15)
+
+Status: accepted for the cases below. The live decline-with-evidence case and delivery-uncertainty path are not claimed as live-verified.
+
+### Ask
+
+| Check | Live result | Notes |
+| --- | --- | --- |
+| Cited answer, restaurant question | Pass | `answered`; one claim with two source IDs; every ID existed in the supplied source set and matched the excerpt. |
+| Cited answer, travel question | Pass | `answered`; one claim with two source IDs from the same Reel; IDs validated against supplied sources. |
+| Unrelated question | Pass | `no_match`; zero sources; retrieval rejected the question before any provider call. |
+| Unsupported question with retrieved evidence | Not verified | Provider free-tier quota was exhausted. Automated tests cover the empty-claims decline path. |
+
+Model notes: the two cited answers used `gemini-3.5-flash`. `gemini-3.8-flash` and `gemini-3.6-flash` reported the 20-request daily limit, and `gemini-3.7-flash` timed out. An exported `GEMINI_MODEL` in the shell takes precedence over `.env`; services must be started with it unset for `.env` changes to apply.
+
+### Telegram digest
+
+| Check | Live result | Evidence |
+| --- | --- | --- |
+| Manual send | Pass | One part delivered; run and message rows reached `sent` with a stored message ID. |
+| Duplicate manual request | Pass | Replaying the same `request_id` returned the same `run_id` and `sent` state with no additional message row or delivery. |
+| Scheduled send | Pass | A temporary `00:00` delivery time triggered one scheduled run, stored separately from the manual run. |
+| Worker restart | Pass | Scheduled `sent_at` was unchanged and no second message row or delivery occurred. |
+| Ranking and content | Pass | Interests `cooking, travel, japanese` changed preview scores and pick order; the digest contained three picks, Reel links, the no-deadline line, and the pending count. |
+| Final preference | Pass | Scheduled delivery left enabled at `23:00` Asia/Kolkata. |
+
+Out of scope for this acceptance: mid-send crash recovery, uncertainty resolution, and retry after transport failure. These remain covered by the automated digest tests. No personal content, chat ID, or token is recorded here.

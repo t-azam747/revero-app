@@ -2,7 +2,7 @@
 
 A local-first, single-user workspace for the Reels you save: share a Reel to a dedicated Instagram account, get a durable **Saved** reply, and keep a searchable library of sourced takeaways, timestamped walkthroughs, trackable actions, and a nightly Telegram digest. Built to run on your own machine with no paid services.
 
-> **Status:** v1 is feature-complete locally and verified on 2026-11-15 (129 backend tests, 11 browser tests, production build). Live Instagram intake and caption extraction are accepted on 13 real shares. Live Telegram delivery, live question answering, and real-Reel video analysis remain unmeasured; the DM webhook supplies permalinks, not playable media.
+> **Status:** v1 is feature-complete locally and verified on 2026-11-15 (129 backend tests, 11 browser tests, production build). Live Instagram intake and caption extraction are accepted on 13 real shares. Live Ask is accepted for cited answers and no-match retrieval, and live Telegram delivery is accepted for manual and scheduled digests. Real-Reel video analysis remains unmeasured; the unsupported-question decline path and delivery uncertainty are covered by automated tests only. The DM webhook supplies permalinks, not playable media.
 
 ## Features
 
@@ -167,8 +167,10 @@ project.md        product scope and working order
 - Live caption extraction: 13/13 real shares produced validated caption-only takeaways that survived a restart.
 - Link-only Reel media: 0/13 accessible through the DM webhook; uploads remain the full-video path.
 - Live video extraction: accepted with an authored clip; real-Reel video quality is still unmeasured.
-- Actions, Ask, and digest: implemented and covered by automated/browser tests. Live Telegram delivery and live Gemini answers are not yet verified.
-- Free-tier quota is small and model-specific. If the configured model is exhausted, select another available model in `.env` and keep the queue limits conservative.
+- Live Ask: two real questions returned cited answers whose source IDs matched supplied excerpts; an unrelated question returned no-match with zero sources and no provider call. The decline-with-evidence case could not be run because the free-tier daily quota was exhausted and remains automated-test-only.
+- Live Telegram: a manual digest delivered in one part, replaying the same request sent nothing new, a scheduled digest delivered once, and a worker restart did not resend. Uncertainty and crash recovery remain automated-test-only.
+- Actions, digest ranking, and delivery edge cases: covered by automated/browser tests.
+- Free-tier quota is small and model-specific (20 requests per day per model in observed runs). If the configured model is exhausted, select another available model in `.env` and keep the queue limits conservative. An exported `GEMINI_MODEL` in the shell overrides `.env`, so unset it before starting services.
 - Retrieval is lexical (FTS5), not semantic. Live model output should be checked against cited excerpts.
 
 ## Documentation
