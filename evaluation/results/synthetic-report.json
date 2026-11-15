@@ -1,0 +1,62 @@
+{
+  "scope": "Authored synthetic fixture benchmark; deterministic providers, no Gemini/Instagram/Telegram quality or accessibility measurement.",
+  "as_of": "2026-11-14T17:30:00+00:00",
+  "interests": [
+    "backend interviews",
+    "SQLite"
+  ],
+  "sample_size": 16,
+  "real_reel_sample_size": 0,
+  "external_provider_calls": 0,
+  "inputs_supplied": 14,
+  "initial_ready": 13,
+  "ready_after_retry": 14,
+  "needs_content_after_retry": 2,
+  "input_processing_coverage_after_retry": 1.0,
+  "total_inbox_ready_fraction": 0.875,
+  "retry_recovered": true,
+  "duplicate_same_id": true,
+  "invalid_link_rejected": true,
+  "reference_evidence_checks": {
+    "passed": 14,
+    "total": 14
+  },
+  "reference_date_wording_checks": {
+    "passed": 2,
+    "total": 2
+  },
+  "automatically_created_deadlines": 0,
+  "ranking": {
+    "candidate_count": 14,
+    "ranked_top3": [
+      "onscreen-text",
+      "sqlite-indexes",
+      "sqlite-joins"
+    ],
+    "newest_top3": [
+      "habits",
+      "retry-case",
+      "blue-clip"
+    ],
+    "ranked": {
+      "k": 3,
+      "precision": 1.0,
+      "ndcg": 1.0
+    },
+    "newest": {
+      "k": 3,
+      "precision": 0.0,
+      "ndcg": 0.0
+    }
+  },
+  "retrieval_answered_from_fixture": true,
+  "unsupported_question_declined": true,
+  "digest_state": "sent",
+  "digest_parts_sent": 1,
+  "digest_rerun_no_duplicate": true,
+  "limitations": [
+    "Labels and content were authored together; sample is not representative.",
+    "Reference-provider checks measure plumbing, not model accuracy.",
+    "No week of usage, real-Reel accessibility, live model quality, or real Telegram delivery has been measured."
+  ]
+}

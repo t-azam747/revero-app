@@ -1,0 +1,48 @@
+{
+  "recorded_at": "2026-11-14T22:44:32.737343+05:30",
+  "scope": "Local integration and authored-fixture evidence; not real-world model accuracy or completed live acceptance.",
+  "checks": {
+    "backend_tests": "73 passed",
+    "browser_tests": "9 passed",
+    "production_build": "passed",
+    "offline_demo_preflight": "all six chapters passed",
+    "restart_check": "two API restarts passed; fake sender only",
+    "synthetic_benchmark": "16 authored cases; temporary database; deterministic output; no external calls"
+  },
+  "demo": {
+    "path": "artifacts/revero-demo.mp4",
+    "duration_seconds": 120,
+    "narration": true,
+    "subtitles": true,
+    "visual_keyframes_reviewed": 3,
+    "provider_disclosure": "persistent banner and narration",
+    "real_provider_calls": 0
+  },
+  "real_evaluation": {
+    "reviewed_samples": 0,
+    "recorded_use_days": 0,
+    "complete": false
+  },
+  "remaining": [
+    "10\u201320 real Reel samples and reviewed takeaways/date evidence",
+    "Seven days of recorded real use",
+    "Live Gemini and Telegram acceptance; live portfolio recording if presenting a fully live integration"
+  ],
+  "source_sha256": {
+    "backend/app/actions.py": "55545611316054c8eab82c0301e0d94c1431cbf085ac56f0e1fa608a0772bb3a",
+    "backend/app/digest.py": "80dc5bdb9c71edcf02acc99a4372b91acf3fd93ce388a42316adb690bb7a08ab",
+    "backend/app/extraction.py": "08bc9f6939515e7fcf6d10148ec01779a1d18dee53727ebd8449e8ac2efbbc91",
+    "backend/app/main.py": "cef3c336298936ec160d11c09a0d6ae7830ecc8a38adf149d9c8b8d2cb3e04a2",
+    "backend/app/search.py": "ebe7ea6ac005e15ac8e833d3e43fd4bcacf8850456b902d82ed89434db96384b",
+    "backend/app/telegram_setup.py": "193e53f5ea1b41f7af339bca2ecd9621e4525f7229b10427c626803ffd691f36",
+    "backend/app/worker.py": "323895c647d98a4a34dfa6cf7e22e440136b37833430a2d3fadf8e7a00568f9c",
+    "evaluation/__init__.py": "2e411682196316b557c2f1fac1bc09509a6fe41b9e19225974de0cd0f090ce9f",
+    "evaluation/benchmark.py": "026bae072c9229b65be722a18a611ffae5405d4e694017f704a9dedb06ef326d",
+    "evaluation/demo_app.py": "7ce509a33c3ee58a8106d4d6b3558a5f4d6b4bcdee13e5671b222c90ab75ed5c",
+    "evaluation/fixtures/synthetic.json": "7b136475726b1835fd7f087d263c5836ac4ef4f95df8485c7fa1610c7d9167e2",
+    "evaluation/fixtures.py": "03089ba0283c78f1f7098dd7ef7eb89708ccd9685648f83f94ef95f4618a73fe",
+    "evaluation/metrics.py": "cb5504fc4427175d26340400989188fc09faf5987f10bdae5d33807f483583e1",
+    "evaluation/real_review.py": "605a41b071a2b50d103f74ac45fd112c3074aad23e6ee133d67e7bf270dfe117",
+    "frontend/scripts/record-demo.mjs": "81dd3297b622ef4743ab399dd74a41f5cf891242d4d527cd91c9463480839cbb"
+  }
+}

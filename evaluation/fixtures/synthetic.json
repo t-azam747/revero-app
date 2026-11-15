@@ -1,0 +1,170 @@
+{
+  "description": "Authored synthetic fixtures. Placeholder Reel links do not claim to identify real media. Provider output is deterministic, not Gemini-generated. Relevance grades are authored for the stated interests.",
+  "interests": [
+    "backend interviews",
+    "SQLite"
+  ],
+  "as_of": "2026-11-14T17:30:00+00:00",
+  "cases": [
+    {
+      "key": "sqlite-joins",
+      "url": "https://www.instagram.com/reel/RVDEMO_sqlite_joins/",
+      "caption": "For backend interviews, practice SQLite joins and explain inner versus left joins.",
+      "relevance": 3,
+      "created_at": "2026-10-01T12:00:00.000Z",
+      "date_mentions": [],
+      "topics": [
+        "backend interviews",
+        "SQLite"
+      ]
+    },
+    {
+      "key": "sqlite-indexes",
+      "url": "https://www.instagram.com/reel/RVDEMO_sqlite_indexes/",
+      "caption": "For backend interviews, explain how SQLite indexes trade faster reads for slower writes.",
+      "relevance": 3,
+      "created_at": "2026-10-02T12:00:00.000Z",
+      "date_mentions": [],
+      "topics": [
+        "backend interviews",
+        "SQLite"
+      ]
+    },
+    {
+      "key": "system-design",
+      "url": "https://www.instagram.com/reel/RVDEMO_system_design/",
+      "caption": "For backend interviews, describe queues, retries, and idempotency.",
+      "relevance": 2,
+      "created_at": "2026-10-03T12:00:00.000Z",
+      "date_mentions": [],
+      "topics": [
+        "backend interviews"
+      ]
+    },
+    {
+      "key": "old-relative",
+      "url": "https://www.instagram.com/reel/RVDEMO_old_relative/",
+      "caption": "Backend interviews workshop: registration closes tomorrow.",
+      "relevance": 1,
+      "created_at": "2020-01-01T12:00:00.000Z",
+      "date_mentions": [
+        "tomorrow"
+      ],
+      "notes": "Old relative date. Do not infer a current deadline."
+    },
+    {
+      "key": "explicit-date",
+      "url": "https://www.instagram.com/reel/RVDEMO_explicit_date/",
+      "caption": "Backend interviews practice session: submit your notes by 2026-11-17.",
+      "relevance": 2,
+      "created_at": "2026-10-05T12:00:00.000Z",
+      "date_mentions": [
+        "2026-11-17"
+      ],
+      "confirm_date": "2026-11-17"
+    },
+    {
+      "key": "onscreen-text",
+      "url": "https://www.instagram.com/reel/RVDEMO_onscreen_text/",
+      "caption": "Explain SQLite joins in backend interviews.",
+      "relevance": 3,
+      "created_at": "2026-10-06T12:00:00.000Z",
+      "date_mentions": [],
+      "kind": "video",
+      "clip": "on-screen.mp4",
+      "topics": [
+        "backend interviews",
+        "SQLite"
+      ],
+      "timestamp_seconds": 0
+    },
+    {
+      "key": "caption-only",
+      "url": "https://www.instagram.com/reel/RVDEMO_caption_only/",
+      "caption": "Write a short explanation after each programming exercise.",
+      "relevance": 1,
+      "created_at": "2026-10-07T12:00:00.000Z",
+      "date_mentions": []
+    },
+    {
+      "key": "soup",
+      "url": "https://www.instagram.com/reel/RVDEMO_soup/",
+      "caption": "Simmer lentils with carrots and cumin for a simple soup.",
+      "relevance": 0,
+      "created_at": "2026-10-08T12:00:00.000Z",
+      "date_mentions": []
+    },
+    {
+      "key": "walking",
+      "url": "https://www.instagram.com/reel/RVDEMO_walking/",
+      "caption": "Take a short walk after lunch and note how you feel.",
+      "relevance": 0,
+      "created_at": "2026-10-09T12:00:00.000Z",
+      "date_mentions": []
+    },
+    {
+      "key": "travel",
+      "url": "https://www.instagram.com/reel/RVDEMO_travel/",
+      "caption": "Pack a reusable bottle and keep a copy of your itinerary.",
+      "relevance": 0,
+      "created_at": "2026-10-10T12:00:00.000Z",
+      "date_mentions": []
+    },
+    {
+      "key": "reading",
+      "url": "https://www.instagram.com/reel/RVDEMO_reading/",
+      "caption": "Read ten pages before bed and write one sentence about them.",
+      "relevance": 0,
+      "created_at": "2026-10-11T12:00:00.000Z",
+      "date_mentions": []
+    },
+    {
+      "key": "blue-clip",
+      "url": "https://www.instagram.com/reel/RVDEMO_blue_clip/",
+      "caption": "A blue screen is visible.",
+      "relevance": 0,
+      "created_at": "2026-10-12T12:00:00.000Z",
+      "date_mentions": [],
+      "kind": "video",
+      "clip": "../../backend/tests/fixtures/blue.mp4",
+      "timestamp_seconds": 0
+    },
+    {
+      "key": "retry-case",
+      "url": "https://www.instagram.com/reel/RVDEMO_retry_case/",
+      "caption": "Write a weekly reflection about your garden.",
+      "relevance": 0,
+      "created_at": "2026-10-13T12:00:00.000Z",
+      "date_mentions": [],
+      "fail_once": true
+    },
+    {
+      "key": "habits",
+      "url": "https://www.instagram.com/reel/RVDEMO_habits/",
+      "caption": "Lay out your clothes the night before an early start.",
+      "relevance": 0,
+      "created_at": "2026-10-14T12:00:00.000Z",
+      "date_mentions": []
+    },
+    {
+      "key": "link-only",
+      "url": "https://www.instagram.com/reel/RVDEMO_link_only/",
+      "caption": "",
+      "relevance": 0,
+      "created_at": "2026-10-15T12:00:00.000Z",
+      "date_mentions": [],
+      "kind": "link_only",
+      "notes": "Synthetic link without supplied content; not an Instagram accessibility measurement."
+    },
+    {
+      "key": "unavailable",
+      "url": "https://www.instagram.com/reel/RVDEMO_unavailable/",
+      "caption": "",
+      "relevance": 0,
+      "created_at": "2026-10-16T12:00:00.000Z",
+      "date_mentions": [],
+      "kind": "link_only",
+      "notes": "Simulated inaccessible share; no external availability claim."
+    }
+  ]
+}

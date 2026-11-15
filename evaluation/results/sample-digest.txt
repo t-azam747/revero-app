@@ -1,0 +1,20 @@
+OFFLINE SAMPLE — authored content; simulated delivery
+
+Revero | 2026-11-14
+Your daily saves
+
+1. Explain SQLite joins in backend interviews.
+https://www.instagram.com/reel/RVDEMO_onscreen_text/
+
+2. For backend interviews, explain how SQLite indexes trade faster reads for slower writes.
+https://www.instagram.com/reel/RVDEMO_sqlite_indexes/
+
+3. For backend interviews, practice SQLite joins and explain inner versus left joins.
+https://www.instagram.com/reel/RVDEMO_sqlite_joins/
+
+Upcoming and overdue actions (next 7 days)
+
+2026-11-17: Backend interviews practice session: submit your notes by 2026-11-17.
+https://www.instagram.com/reel/RVDEMO_explicit_date/
+
+2 saved link(s) still need content or processing.

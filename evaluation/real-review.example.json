@@ -1,0 +1,20 @@
+{
+  "interests": [
+    "backend interviews",
+    "SQLite"
+  ],
+  "samples": [
+    {
+      "reel_id": null,
+      "input_kind": null,
+      "relevance": null,
+      "link_sufficient": null,
+      "evidence_correct": null,
+      "dates_correct": null,
+      "expected_takeaway": "Write your expected takeaway before comparing the model output.",
+      "expected_date_mentions": null,
+      "notes": "Copy this entry for each real save. Leave unknown judgments null. Relevance: 0 irrelevant, 1 tangential, 2 useful, 3 highly useful for the stated interests.",
+      "takeaway_correct": null
+    }
+  ]
+}
