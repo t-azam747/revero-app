@@ -1,0 +1,118 @@
+name: revero
+x-app: &app
+  image: revero-mvp:m1
+  build:
+    context: ..
+    dockerfile: deploy/Dockerfile
+  restart: unless-stopped
+  init: true
+  read_only: true
+  tmpfs: [/tmp:mode=1777,size=512m]
+  env_file: [./runtime.env]
+  healthcheck:
+    disable: true
+  volumes:
+    - data:/data
+    - ./secrets/providers.env:/srv/.env:ro
+  security_opt: [no-new-privileges:true]
+  cap_drop: [ALL]
+  logging:
+    driver: json-file
+    options: {max-size: 10m, max-file: '3'}
+services:
+  migrate:
+    <<: *app
+    restart: 'no'
+    command: [python, -m, app.storage, /data/revero.sqlite3]
+  private:
+    <<: *app
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+    environment:
+      REVERO_PRIVATE_REQUIRED: 'true'
+      REVERO_PRIVATE_PASSWORD_FILE: /run/secrets/private_password
+    secrets: [private_password]
+    ports: ['127.0.0.1:8080:8000']
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health',timeout=5)"]
+      interval: 15s
+      timeout: 6s
+      retries: 3
+  webhook:
+    <<: *app
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+    command: [python, -m, uvicorn, app.instagram_webhook:app, --host, 0.0.0.0, --port, '8001', --no-access-log]
+    # Health checks never send signed events or invoke a message provider.
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request,urllib.error; exec(\"try:\\n urllib.request.urlopen('http://127.0.0.1:8001/webhooks/instagram',timeout=5)\\nexcept urllib.error.HTTPError as e:\\n assert e.code in (403,503)\")"]
+      interval: 15s
+      timeout: 6s
+      retries: 3
+  scheduler:
+    <<: *app
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+    command: [python, -m, app.worker]
+    environment: {REVERO_RUN_SCHEDULER: 'true', REVERO_RUN_PROCESSING: 'false'}
+    healthcheck:
+      test: [CMD, python, -m, app.operations, --role, scheduler]
+      interval: 20s
+      timeout: 10s
+      retries: 3
+  processing:
+    <<: *app
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+    command: [python, -m, app.worker]
+    environment: {REVERO_RUN_SCHEDULER: 'false', REVERO_RUN_PROCESSING: 'true'}
+    healthcheck:
+      test: [CMD, python, -m, app.operations, --role, processing]
+      interval: 20s
+      timeout: 10s
+      retries: 3
+  instagram:
+    <<: *app
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+    command: [python, -m, app.instagram_worker]
+    healthcheck:
+      test: [CMD, python, -m, app.operations, --role, instagram]
+      interval: 20s
+      timeout: 10s
+      retries: 3
+  backup:
+    <<: *app
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+    command: [python, -m, app.backup_worker]
+    environment: {REVERO_BACKUP_TARGET: /backup, REVERO_BACKUP_KEY_FILE: /run/secrets/backup_key}
+    secrets: [backup_key]
+    volumes:
+      - data:/data
+      - backup_spool:/backup
+      - ./secrets/providers.env:/srv/.env:ro
+    healthcheck:
+      test: [CMD, python, -m, app.operations, --role, backup]
+      interval: 20s
+      timeout: 10s
+      retries: 3
+  ingress:
+    image: caddy:2.10.2-alpine
+    restart: unless-stopped
+    depends_on:
+      webhook: {condition: service_healthy}
+    environment: {REVERO_WEBHOOK_HOST: '${REVERO_WEBHOOK_HOST:?Set a stable DNS hostname}'}
+    ports: ['80:80', '443:443']
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+secrets:
+  private_password: {file: ./secrets/private_password}
+  backup_key: {file: ./secrets/backup_key}
+volumes:
+  data:
+  caddy-data:
+  caddy-config:
+  backup_spool:

@@ -48,38 +48,6 @@ def settings():
 
 def initialize(path):
     initialize_database(path)
-    with connect(path) as db:
-        db.executescript('''
-        CREATE TABLE IF NOT EXISTS instagram_senders (
-            account_id TEXT NOT NULL, sender_id TEXT NOT NULL, first_seen REAL NOT NULL,
-            PRIMARY KEY(account_id, sender_id));
-        CREATE TABLE IF NOT EXISTS instagram_inbound (
-            id INTEGER PRIMARY KEY, account_id TEXT NOT NULL, mid TEXT NOT NULL,
-            sender_id TEXT NOT NULL, event_at REAL NOT NULL, received_at REAL NOT NULL,
-            kind TEXT NOT NULL, UNIQUE(account_id, mid));
-        CREATE TABLE IF NOT EXISTS instagram_refs (
-            account_id TEXT NOT NULL, identity TEXT NOT NULL, reel_id INTEGER NOT NULL REFERENCES reels(id),
-            PRIMARY KEY(account_id, identity));
-        CREATE TABLE IF NOT EXISTS instagram_shares (
-            inbound_id INTEGER NOT NULL REFERENCES instagram_inbound(id), position INTEGER NOT NULL,
-            reel_id INTEGER NOT NULL REFERENCES reels(id), attachment_type TEXT NOT NULL,
-            provider_id TEXT, reference TEXT, title TEXT,
-            access_class TEXT NOT NULL DEFAULT 'unmeasured',
-            PRIMARY KEY(inbound_id, position));
-        CREATE TABLE IF NOT EXISTS instagram_outbox (
-            id INTEGER PRIMARY KEY, inbound_id INTEGER NOT NULL REFERENCES instagram_inbound(id),
-            kind TEXT NOT NULL DEFAULT 'saved', text TEXT,
-            state TEXT NOT NULL DEFAULT 'queued', attempts INTEGER NOT NULL DEFAULT 0,
-            available_at REAL NOT NULL DEFAULT 0, lease_until REAL, attempt_id TEXT,
-            provider_mid TEXT, error TEXT,
-            UNIQUE(inbound_id, kind));
-        ''')
-        columns = {row['name'] for row in db.execute('PRAGMA table_info(instagram_outbox)')}
-        if 'kind' not in columns:
-            db.execute("ALTER TABLE instagram_outbox ADD COLUMN kind TEXT NOT NULL DEFAULT 'saved'")
-        if 'text' not in columns:
-            db.execute("ALTER TABLE instagram_outbox ADD COLUMN text TEXT")
-        db.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_instagram_outbox_inbound_kind ON instagram_outbox(inbound_id, kind)")
 
 
 def obj(value):
@@ -303,7 +271,10 @@ def run_one(path, config, sender=None, now=None):
     with connect(path) as db:
         db.execute('BEGIN IMMEDIATE')
         db.execute("UPDATE instagram_outbox SET state='uncertain', error='interrupted' WHERE state='sending' AND lease_until<=?", (now,))
-        if not config.replies_enabled or not config.account_id or not config.sender_id:
+        from .operations import paused_db
+        if paused_db(db, 'delivery'): return False
+        from .operations import paused_db
+        if paused_db(db, 'delivery') or not config.replies_enabled or not config.account_id or not config.sender_id:
             return False
         # Queue any completed takeaways for summary delivery
         queue_summary_replies(db)

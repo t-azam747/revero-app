@@ -109,7 +109,11 @@ def ask(path, question, answerer=None):
     sources = retrieve(path, question)
     if not sources:
         return {'status': 'no_match', 'answer': NO_MATCH, 'claims': [], 'sources': []}
-    if answerer is None and not configured():
+    from .operations import paused
+    if paused(path, 'processing'):
+        return {'status': 'unavailable', 'answer': 'Processing is paused for recovery review.', 'claims': [], 'sources': sources}
+    from .operations import paused
+    if paused(path, 'processing') or (answerer is None and not configured()):
         return {'status': 'unconfigured', 'answer': 'Related excerpts found. Configure Gemini in the backend to generate an answer.', 'claims': [], 'sources': sources}
     with connect(path) as db:
         cooldown = db.execute("SELECT value FROM worker_state WHERE name='quota_until'").fetchone()

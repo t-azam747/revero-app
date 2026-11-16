@@ -1,0 +1,30 @@
+name: Revero checks
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  behavior:
+    runs-on: ubuntu-latest
+    env:
+      GEMINI_API_KEY: ''
+      GEMINI_FREE_TIER_CONFIRMED: 'false'
+      TELEGRAM_BOT_TOKEN: ''
+      TELEGRAM_CHAT_ID: ''
+      INSTAGRAM_ACCESS_TOKEN: ''
+      INSTAGRAM_REPLIES_ENABLED: 'false'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.14.3'}
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.22.2', cache: npm, cache-dependency-path: frontend/package-lock.json}
+      - run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - run: python -m venv backend/.venv
+      - run: backend/.venv/bin/python -m pip install -r backend/requirements-lock.txt
+      - run: backend/.venv/bin/python -m pytest backend/tests -q
+      - run: npm ci --prefix frontend
+      - run: cd frontend && npx playwright install --with-deps chromium
+      - run: npm run test:e2e --prefix frontend
+      - run: npm run build --prefix frontend
+      - run: backend/.venv/bin/python backend/tests/check_action_restart.py
+      - run: backend/.venv/bin/python -m app.restore_drill --output artifacts/m1-restore-drill.json

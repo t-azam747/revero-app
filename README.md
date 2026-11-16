@@ -198,8 +198,8 @@ project.md        product scope and working order
 
 ### Operational and product constraints
 
-- Single-user local pilot. There is no authentication, multi-tenant isolation, or onboarding, so it is not ready for other users as-is.
-- No delete/export UI and no automatic backup. Back up the SQLite file manually.
+- Single-user local pilot. M1 adds a private API password for the deployment topology; there is no multi-tenant isolation or onboarding.
+- No delete/export UI. M1 adds encrypted scheduled backups with optional verified S3-compatible upload; configure independent storage and verify a remote restore before relying on it. Until then, retain a separate manual backup.
 - Digest picks only Reels created on the current India-local day. A day without new saves produces an empty digest.
 - Free-tier quota is small and model-specific (20 requests/day per model observed). Current quota handling can mark jobs failed after retries when the daily cap is exhausted; select another model if needed. An exported `GEMINI_MODEL` overrides `.env`.
 - Retrieval is lexical (FTS5), not semantic. Check model output against cited excerpts.

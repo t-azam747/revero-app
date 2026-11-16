@@ -1,12 +1,15 @@
-from contextlib import asynccontextmanager, contextmanager
+from contextlib import asynccontextmanager
 from pathlib import Path
 import re
 import os
-import sqlite3
+import base64
+import hmac
 import time
 from urllib.parse import urlsplit
 
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import Response
+from fastapi.staticfiles import StaticFiles
 from . import extraction, actions, search, digest
 from pydantic import BaseModel
 
@@ -34,34 +37,15 @@ def canonicalize(url: str) -> tuple[str, str]:
 
 
 def initialize_database(db_path):
-    db_path = Path(db_path)
-    db_path.parent.mkdir(parents=True, exist_ok=True)
-    with extraction.connect(db_path) as db:
-        db.execute('''CREATE TABLE IF NOT EXISTS reels (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            shortcode TEXT NOT NULL UNIQUE,
-            url TEXT NOT NULL,
-            status TEXT NOT NULL DEFAULT 'needs_content',
-            created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
-        )''')
-        extraction.initialize(db)
-        actions.initialize(db)
-        search.initialize(db)
-        digest.initialize(db)
+    from .storage import initialize
+    initialize(db_path)
 
 
 def create_app(db_path: Path = DEFAULT_DB, *, answerer=None, messenger=None) -> FastAPI:
     db_path = Path(db_path).resolve()
 
-    @contextmanager
     def connect():
-        connection = sqlite3.connect(db_path, timeout=10)
-        connection.row_factory = sqlite3.Row
-        try:
-            with connection:
-                yield connection
-        finally:
-            connection.close()
+        return extraction.connect(db_path)
 
     @asynccontextmanager
     async def lifespan(app):
@@ -69,6 +53,47 @@ def create_app(db_path: Path = DEFAULT_DB, *, answerer=None, messenger=None) -> 
         yield
 
     app = FastAPI(title='Revero', lifespan=lifespan)
+
+    # Optional host-level owner credential for deployment; localhost development stays compatible.
+    password_file = os.environ.get('REVERO_PRIVATE_PASSWORD_FILE')
+    private_password = Path(password_file).read_text().strip() if password_file else None
+    if private_password is not None and len(private_password) < 24:
+        raise RuntimeError('Private workspace password must contain at least 24 characters.')
+    if os.environ.get('REVERO_PRIVATE_REQUIRED') == 'true' and private_password is None:
+        raise RuntimeError('Private workspace credentials are required.')
+
+    @app.middleware('http')
+    async def owner_access(request: Request, call_next):
+        if private_password is not None and request.url.path != '/health':
+            authenticated = False
+            try:
+                scheme, encoded = request.headers.get('Authorization','').split(' ',1)
+                user, supplied = base64.b64decode(encoded,validate=True).decode().split(':',1)
+                authenticated = scheme.lower() == 'basic' and user == 'owner' and hmac.compare_digest(supplied.encode(),private_password.encode())
+            except (ValueError,UnicodeError):
+                pass
+            if not authenticated:
+                return Response(status_code=401,headers={'WWW-Authenticate':'Basic realm="Revero", charset="UTF-8"'})
+            if request.method not in ('GET','HEAD','OPTIONS'):
+                origin = request.headers.get('Origin')
+                expected_origin = str(request.base_url).rstrip('/')
+                if (origin and origin != expected_origin) or (not origin and request.headers.get('X-Revero-Owner-Request') != '1'):
+                    return Response(status_code=403)
+        response = await call_next(request)
+        response.headers['X-Content-Type-Options']='nosniff'
+        response.headers['Content-Security-Policy']="frame-ancestors 'none'"
+        return response
+
+    @app.get('/health')
+    def health():
+        with connect() as db:
+            db.execute('SELECT 1 FROM schema_migrations LIMIT 1').fetchone()
+        return {'ready':True}
+
+    @app.get('/api/operations')
+    def operations_status():
+        from .operations import status
+        return status(db_path)
     app.include_router(actions.router(db_path))
     app.include_router(search.router(db_path, answerer))
     app.include_router(digest.router(db_path, messenger))
@@ -168,6 +193,9 @@ def create_app(db_path: Path = DEFAULT_DB, *, answerer=None, messenger=None) -> 
             row = db.execute('SELECT * FROM extraction_jobs WHERE id=?', (job['id'],)).fetchone()
         return extraction.public_job(row)
 
+    frontend_dir = os.environ.get('REVERO_FRONTEND_DIR')
+    if frontend_dir:
+        app.mount('/',StaticFiles(directory=frontend_dir,html=True),name='workspace')
     return app
 
 

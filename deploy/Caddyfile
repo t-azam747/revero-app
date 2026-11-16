@@ -1,0 +1,14 @@
+{$REVERO_WEBHOOK_HOST} {
+    # No access log: Meta verification query strings contain the verify token.
+    @instagram {
+        path /webhooks/instagram
+        method GET POST
+    }
+    handle @instagram {
+        request_body { max_size 1MB }
+        reverse_proxy webhook:8001
+    }
+    handle {
+        respond 404
+    }
+}

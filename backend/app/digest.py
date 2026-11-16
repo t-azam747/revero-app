@@ -32,35 +32,6 @@ def telegram_configured():
     return bool(re.fullmatch(r'\d+:[A-Za-z0-9_-]+', values['TELEGRAM_BOT_TOKEN']) and re.fullmatch(r'\d+', values['TELEGRAM_CHAT_ID']))
 
 
-def initialize(db):
-    db.execute('''CREATE TABLE IF NOT EXISTS digest_preferences (
-        id INTEGER PRIMARY KEY CHECK(id=1), interests TEXT NOT NULL DEFAULT '[]', enabled INTEGER NOT NULL DEFAULT 0)''')
-    db.execute('INSERT OR IGNORE INTO digest_preferences(id) VALUES (1)')
-    if 'delivery_time' not in {row['name'] for row in db.execute('PRAGMA table_info(digest_preferences)')}:
-        db.execute("ALTER TABLE digest_preferences ADD COLUMN delivery_time TEXT NOT NULL DEFAULT '23:00'")
-    db.execute('''CREATE TABLE IF NOT EXISTS digest_runs (
-        local_date TEXT PRIMARY KEY, state TEXT NOT NULL, payload TEXT NOT NULL,
-        started_at REAL, next_attempt_at REAL NOT NULL DEFAULT 0, error TEXT,
-        sent_at REAL, attempt TEXT)''')
-    if 'attempt' not in {row['name'] for row in db.execute('PRAGMA table_info(digest_runs)')}:
-        db.execute('ALTER TABLE digest_runs ADD COLUMN attempt TEXT')
-    db.execute('''CREATE TABLE IF NOT EXISTS digest_messages (
-        local_date TEXT NOT NULL REFERENCES digest_runs(local_date), position INTEGER NOT NULL,
-        text TEXT NOT NULL, state TEXT NOT NULL DEFAULT 'pending', message_id INTEGER,
-        PRIMARY KEY(local_date, position))''')
-
-    # Separate manual records reuse the same durable multipart delivery engine.
-    db.execute("""CREATE TABLE IF NOT EXISTS digest_manual_runs (
-        local_date TEXT PRIMARY KEY, state TEXT NOT NULL, payload TEXT NOT NULL,
-        started_at REAL, next_attempt_at REAL NOT NULL DEFAULT 0, error TEXT,
-        sent_at REAL, attempt TEXT)""")
-    db.execute("""CREATE TABLE IF NOT EXISTS digest_manual_messages (
-        local_date TEXT NOT NULL REFERENCES digest_manual_runs(local_date), position INTEGER NOT NULL,
-        text TEXT NOT NULL, state TEXT NOT NULL DEFAULT 'pending', message_id INTEGER,
-        PRIMARY KEY(local_date, position))""")
-    db.execute("""CREATE TABLE IF NOT EXISTS digest_manual_requests (
-        request_id TEXT PRIMARY KEY, run_key TEXT NOT NULL REFERENCES digest_manual_runs(local_date))""")
-
 
 def preferences(path):
     with connect(path) as db:
@@ -195,6 +166,8 @@ def recover_uncertain(path, epoch=None, manual=False):
 def run_digest(path, messenger=None, now=None, *, manual_key=None):
     runs = "digest_manual_runs" if manual_key else "digest_runs"
     parts = "digest_manual_messages" if manual_key else "digest_messages"
+    from .operations import paused
+    if paused(path, 'delivery'): raise HTTPException(409, 'Delivery is paused for recovery review.')
     clock = time.time if now is None else lambda: now.timestamp()
     now = now or datetime.now(timezone.utc)
     epoch = now.timestamp()
@@ -259,6 +232,8 @@ def run_digest(path, messenger=None, now=None, *, manual_key=None):
 
 def tick(path, messenger=None, now=None):
     now = now or datetime.now(timezone.utc)
+    from .operations import paused
+    if paused(path, 'delivery'): return None
     recover_uncertain(path, now.timestamp())
     prefs = preferences(path)
     if not prefs['enabled'] or now.astimezone(IST).strftime('%H:%M') < prefs['delivery_time']:

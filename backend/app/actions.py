@@ -38,21 +38,6 @@ class ActionUpdate(BaseModel):
         return value
 
 
-def initialize(db):
-    db.execute('''CREATE TABLE IF NOT EXISTS actions (
-        id INTEGER PRIMARY KEY,
-        reel_id INTEGER NOT NULL REFERENCES reels(id),
-        job_id INTEGER NOT NULL REFERENCES extraction_jobs(id),
-        suggestion_index INTEGER NOT NULL,
-        text TEXT NOT NULL, source_excerpt TEXT NOT NULL,
-        source_origin TEXT NOT NULL, timestamp_seconds REAL,
-        date_mentions TEXT NOT NULL,
-        due_date TEXT,
-        status TEXT NOT NULL DEFAULT 'open' CHECK(status IN ('open', 'done', 'dismissed')),
-        created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
-        updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
-        UNIQUE(job_id, suggestion_index))''')
-
 
 def serialize(row):
     result = dict(row)

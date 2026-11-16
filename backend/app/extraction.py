@@ -1,13 +1,11 @@
 """Durable extraction jobs. Media stays local until a configured worker processes it."""
 import base64
-from contextlib import contextmanager
 import hashlib
 import json
 import os
 from pathlib import Path
 import random
 import re
-import sqlite3
 import tempfile
 import time
 from typing import Literal
@@ -90,35 +88,8 @@ def rate_settings():
     return limits
 
 
-@contextmanager
-def connect(path):
-    db = sqlite3.connect(path, timeout=15)
-    db.row_factory = sqlite3.Row
-    db.execute('PRAGMA foreign_keys = ON')
-    try:
-        with db:
-            yield db
-    finally:
-        db.close()
+from .storage import connect
 
-
-def initialize(db):
-    if 'active_job' not in {row['name'] for row in db.execute('PRAGMA table_info(reels)')}:
-        db.execute('ALTER TABLE reels ADD COLUMN active_job INTEGER')
-    db.execute('CREATE TABLE IF NOT EXISTS worker_state (name TEXT PRIMARY KEY, value REAL NOT NULL)')
-    db.execute('''CREATE TABLE IF NOT EXISTS extraction_jobs (
-        id INTEGER PRIMARY KEY, reel_id INTEGER NOT NULL REFERENCES reels(id),
-        revision TEXT NOT NULL, caption TEXT NOT NULL, media BLOB, mime TEXT,
-        state TEXT NOT NULL DEFAULT 'queued', attempts INTEGER NOT NULL DEFAULT 0,
-        available_at REAL NOT NULL DEFAULT 0, lease_until REAL, priority INTEGER NOT NULL DEFAULT 0,
-        error TEXT, result TEXT, created_at REAL NOT NULL,
-        UNIQUE(reel_id, revision))''')
-    if 'priority' not in {row['name'] for row in db.execute('PRAGMA table_info(extraction_jobs)')}:
-        db.execute('ALTER TABLE extraction_jobs ADD COLUMN priority INTEGER NOT NULL DEFAULT 0')
-    # Persistent token bucket and daily cap, so restarts cannot reset the free-tier budget.
-    db.execute('''CREATE TABLE IF NOT EXISTS extraction_rate (
-        id INTEGER PRIMARY KEY CHECK (id=1), tokens REAL NOT NULL,
-        updated_at REAL NOT NULL, day_key TEXT NOT NULL, day_count INTEGER NOT NULL)''')
 
 
 def public_job(row):
@@ -281,18 +252,8 @@ def generate_json(parts, schema):
     if response.status_code >= 500 or response.status_code == 408:
         raise ProviderError('Gemini is temporarily unavailable. Retrying automatically.', transient=True)
     if response.status_code != 200:
-        # Surface only the provider status/reason; never include the request, prompt, or credentials.
-        detail = ''
-        try:
-            error = response.json().get('error') or {}
-            reason = str(error.get('message') or '')[:200]
-            if reason:
-                detail = f' ({response.status_code}: {reason})'
-            else:
-                detail = f' (HTTP {response.status_code})'
-        except (ValueError, AttributeError):
-            detail = f' (HTTP {response.status_code})'
-        raise ProviderError('Gemini rejected the request. Check the backend key, free-tier model, and supported input, then retry.' + detail)
+        raise ProviderError(f'Gemini rejected the request (HTTP {response.status_code}). Check backend configuration and supported input.')
+
     try:
         parts = response.json()['candidates'][0]['content']['parts']
         return json.loads(''.join(part.get('text', '') for part in parts if not part.get('thought')))
@@ -367,6 +328,8 @@ def claim(path, now, limits, limit, caption_only=False):
     """Atomically claim up to `limit` jobs and consume one token per claimed job."""
     with connect(path) as db:
         db.execute('BEGIN IMMEDIATE')
+        from .operations import paused_db
+        if paused_db(db, 'processing'): return []
         cooldown = db.execute("SELECT value FROM worker_state WHERE name='quota_until'").fetchone()
         if cooldown and cooldown['value'] > now:
             return []

@@ -16,3 +16,10 @@ test-results/
 .e2e/
 evaluation/local/
 artifacts/
+
+# Deployment secrets and encrypted operational artifacts
+deploy/secrets/
+deploy/*.env
+*.rvbk
+
+# Deployment credentials and encrypted backup artifacts stay local.

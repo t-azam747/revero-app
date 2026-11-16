@@ -1,0 +1,223 @@
+{
+  "commit": "ba738180c3714eba732e4f46ace7086ca992cfd8",
+  "date": "2026-11-16",
+  "runtime": {
+    "python": "3.14.3",
+    "node": "22.22.2",
+    "npm": "10.9.7",
+    "sqlite": "3.51.3"
+  },
+  "lock_sha256": {
+    "backend/requirements-lock.txt": "a1e24f689af887c450f2e51fdc5d9a5b93307bf77ba37519339068fa6d25d47a",
+    "frontend/package-lock.json": "78b2af4426d531cbbc636bb6c0d87489fc4ce68eab580bc9c427d8c224c4600a"
+  },
+  "python_lock_mismatches": [],
+  "installed_packages": {
+    "fastapi": "0.162.7",
+    "uvicorn": "0.54.0",
+    "httpx": "0.28.1",
+    "pytest": "9.2.0",
+    "python-dotenv": "1.2.4",
+    "python-multipart": "0.0.33"
+  },
+  "personal_db_read_only": {
+    "journal_mode": "delete",
+    "schema_version": 0,
+    "foreign_key_violation_count": 0,
+    "tables": {
+      "actions": [
+        "id",
+        "reel_id",
+        "job_id",
+        "suggestion_index",
+        "text",
+        "source_excerpt",
+        "source_origin",
+        "timestamp_seconds",
+        "date_mentions",
+        "due_date",
+        "status",
+        "created_at",
+        "updated_at"
+      ],
+      "digest_manual_messages": [
+        "local_date",
+        "position",
+        "text",
+        "state",
+        "message_id"
+      ],
+      "digest_manual_requests": [
+        "request_id",
+        "run_key"
+      ],
+      "digest_manual_runs": [
+        "local_date",
+        "state",
+        "payload",
+        "started_at",
+        "next_attempt_at",
+        "error",
+        "sent_at",
+        "attempt"
+      ],
+      "digest_messages": [
+        "local_date",
+        "position",
+        "text",
+        "state",
+        "message_id"
+      ],
+      "digest_preferences": [
+        "id",
+        "interests",
+        "enabled",
+        "delivery_time"
+      ],
+      "digest_runs": [
+        "local_date",
+        "state",
+        "payload",
+        "started_at",
+        "next_attempt_at",
+        "error",
+        "sent_at",
+        "attempt"
+      ],
+      "extraction_jobs": [
+        "id",
+        "reel_id",
+        "revision",
+        "caption",
+        "media",
+        "mime",
+        "state",
+        "attempts",
+        "available_at",
+        "lease_until",
+        "error",
+        "result",
+        "created_at",
+        "priority"
+      ],
+      "extraction_rate": [
+        "id",
+        "tokens",
+        "updated_at",
+        "day_key",
+        "day_count"
+      ],
+      "instagram_inbound": [
+        "id",
+        "account_id",
+        "mid",
+        "sender_id",
+        "event_at",
+        "received_at",
+        "kind"
+      ],
+      "instagram_outbox": [
+        "id",
+        "inbound_id",
+        "kind",
+        "text",
+        "state",
+        "attempts",
+        "available_at",
+        "lease_until",
+        "attempt_id",
+        "provider_mid",
+        "error"
+      ],
+      "instagram_refs": [
+        "account_id",
+        "identity",
+        "reel_id"
+      ],
+      "instagram_senders": [
+        "account_id",
+        "sender_id",
+        "first_seen"
+      ],
+      "instagram_shares": [
+        "inbound_id",
+        "position",
+        "reel_id",
+        "attachment_type",
+        "provider_id",
+        "reference",
+        "title",
+        "access_class"
+      ],
+      "reel_search": [
+        "reel_id",
+        "job_id",
+        "document"
+      ],
+      "reel_search_config": [
+        "k",
+        "v"
+      ],
+      "reel_search_content": [
+        "id",
+        "c0",
+        "c1",
+        "c2"
+      ],
+      "reel_search_data": [
+        "id",
+        "block"
+      ],
+      "reel_search_docsize": [
+        "id",
+        "sz"
+      ],
+      "reel_search_idx": [
+        "segid",
+        "term",
+        "pgno"
+      ],
+      "reels": [
+        "id",
+        "shortcode",
+        "url",
+        "status",
+        "created_at",
+        "active_job"
+      ],
+      "worker_state": [
+        "name",
+        "value"
+      ]
+    },
+    "reel_states": {
+      "needs_content": 2,
+      "ready": 13
+    },
+    "extraction_states": {
+      "ready": 13
+    },
+    "share_metadata": {
+      "shares": 13,
+      "distinct_reels": 13,
+      "with_title": 13,
+      "with_reference": 13,
+      "with_provider_id": 13
+    },
+    "reference_host_counts": {
+      "www.instagram.com": 13
+    },
+    "view_includes_walkthrough": false
+  },
+  "fresh_helper": {
+    "foreign_keys": 1,
+    "busy_timeout_ms": 15000,
+    "journal_mode": "delete"
+  },
+  "main_equivalent_connection": {
+    "foreign_keys": 0,
+    "busy_timeout_ms": 10000
+  },
+  "legacy_view_probe_preserves_stale_definition": true,
+  "legacy_outbox_summary_insert": "fails_inline_unique_inbound_id"
+}
