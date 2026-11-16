@@ -10,7 +10,7 @@ from urllib.parse import urlsplit
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import Response
 from fastapi.staticfiles import StaticFiles
-from . import extraction, actions, search, digest
+from . import extraction, actions, search, digest, library
 from pydantic import BaseModel
 
 DEFAULT_DB = Path(os.environ.get('REVERO_DB_PATH', Path(__file__).resolve().parents[1] / 'data' / 'revero.sqlite3')).resolve()
@@ -102,9 +102,7 @@ def create_app(db_path: Path = DEFAULT_DB, *, answerer=None, messenger=None) -> 
     def save_reel(payload: ReelInput):
         shortcode, url = canonicalize(payload.url)
         with connect() as db:
-            cursor = db.execute('INSERT INTO reels (shortcode, url) VALUES (?, ?) ON CONFLICT(shortcode) DO NOTHING', (shortcode, url))
-            created = cursor.rowcount == 1
-            row = db.execute('SELECT * FROM reels WHERE shortcode = ?', (shortcode,)).fetchone()
+            row, created = library.save(db, shortcode, url)
         return {**dict(row), 'created': created}
 
     @app.get('/api/reels')

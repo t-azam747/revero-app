@@ -156,6 +156,8 @@ Exit gate: tests are reproducible; failures are explained; no source-audit claim
 
 **Depends on:** M0.
 
+**Current owner decision (16 November 2026):** run Revero locally for now. VM hosting, public DNS, VPN, and cloud object storage are deferred. The deployment and off-host recovery tasks below remain future requirements if always-on operation is chosen; local use does not satisfy that original exit gate.
+
 Tasks:
 
 1. Add explicit, ordered schema migrations with a schema-version table.

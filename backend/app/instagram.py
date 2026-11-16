@@ -108,8 +108,9 @@ def save_share(db, config, provider_id, reference):
         # Internal key cannot collide with a legal Instagram shortcode. Empty URL means unknown.
         shortcode = 'instagram:' + hashlib.sha256((config.account_id + ':' + identity).encode()).hexdigest()
         url = ''
-    db.execute('INSERT INTO reels(shortcode,url) VALUES (?,?) ON CONFLICT(shortcode) DO NOTHING', (shortcode, url))
-    reel_id = db.execute('SELECT id FROM reels WHERE shortcode=?', (shortcode,)).fetchone()['id']
+    from .library import save
+    reel, _ = save(db, shortcode, url)
+    reel_id = reel['id']
     db.execute('INSERT INTO instagram_refs VALUES (?,?,?)', (config.account_id, identity, reel_id))
     return reel_id
 
